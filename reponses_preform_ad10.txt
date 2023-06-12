@@ -1,0 +1,58 @@
+Système
+
+• Quel est le chemin du fichier permettant de connaître la version de DEBIAN ?
+• Quelle est la commande permettant de connaître la date et l’heure définie sur le système ?
+• Quelle est la timezone du système ?
+• Quelle est la commande permettant de modifier la timezone du système ?
+• Quelle est la commande permettant de créer un fichier file.txt et son contenu « test » en une seule
+ligne ?
+• Quelle est la commande permettant de connaître le nom du système (nom d’hôte) ?
+• Quelle est la commande permettant de modifier le nom d’hôte du système ?
+• Quelle est la commande permettant de redémarrer système ?
+• Quelle est la commande permettant de savoir depuis combien de temps le système tourne ?
+• Quelle est la commande permettant de connaître l’espace disque disponible sur le système ?
+• Quelle est la commande permettant de connaître l’espace disque occupé par le répertoire /etc ?
+• Quelle est la commande permettant de savoir si le service sshd est démarré ?
+• Quelle est la commande permettant de connaître le PID du service sshd ?
+• Quelle est la commande permettant de tuer le processus sshd à l’aide de son PID ?
+• Quelle est la commande permettant de connaître la liste des processus en cours ?
+• Quelle est la commande permettant de connaître le nom de l’utilisateur actuellement connecté à la
+console ?
+• Quelle est la commande permettant de connaître le nom de tous les utilisateurs actuellement
+connectés au système ?
+• Quelle est la commande permettant de lancer une commande avec les droits root sans être root ?
+• Quelle est la commande permettant d’éditer le fichier de définition des commandes exécutées
+périodiquement ?
+• Quelle est la commande permettant de vider l’historique de la ligne de commande de l’utilisateur en
+cours ?
+
+
+Réseau
+
+• Quelle est la commande permettant de connaître le nom et l’adresse IP de l’interface ethernet ?
+• Quelle est la commande permettant de connaître l’adresse IP de la passerelle (gateway) ?
+• Quel est le chemin du fichier dans lequel sont définis les DNS ?
+• Quelle est la commande permettant de connaître l’adresse IP du DNS racine pour le domaine www.it-
+akademy. fr ?
+• Quel est le nom du paquet que vous avez du installer pour répondre à la question précédente ?
+• Quelle est la commande permettant de vérifier que la passerelle est accessible depuis la Debian ?
+• Quelle est la commande permettant de connaître les adresses des équipements réseau entre la Debian
+et le serveur hébergeant it-akademy.fr ?
+• Quelle est la commande permettant de connaître le nom d’hôte de la machine hébergeant it-akademy.
+fr ?
+• Quel est le chemin du fichier local contenant des correspondances adresses IP / Nom de domaine ?
+• Quelle est la commande permettant de faire pointer le domaine labo.it-akademy.fr vers l’adresse
+127.0.0.1 ?
+
+
+Scripting
+
+• Créer un script permettant, une fois exécuté, d’afficher la liste des fichiers triés par taille du répertoire /
+var/log.
+• Créer un script permettant, une fois exécuté, d’afficher la liste des fichiers triés par taille du répertoire
+passé en argument.
+• Créer un script permettant, une fois exécuté, de mettre à jour les dépôts de paquets Debian, puis de
+mettre à jour les paquets installés sur le système et de journaliser le tout dans le fichier /var/log/apt/
+updated.log.
+
+
