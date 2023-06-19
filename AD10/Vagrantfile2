@@ -1,0 +1,70 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+# Toute la configuration de Vagrant est effectuée ci-dessous. Le "2" dans Vagrant.configure
+# configure la version de la configuration (nous prenons en charge les anciens styles pour
+# la compatibilité ascendante). Veuillez ne pas le modifier à moins de savoir ce que
+# vous faites.
+Vagrant.configure("2") do |config|
+  # Les options de configuration les plus courantes sont documentées et commentées ci-dessous.
+  # Pour une référence complète, veuillez consulter la documentation en ligne à l'adresse
+  # https://docs.vagrantup.com.
+
+  # Chaque environnement de développement Vagrant nécessite une boîte. Vous pouvez rechercher des
+  # boîtes à l'adresse https://vagrantcloud.com/search.
+  config.vm.box = "debian/bullseye64"
+
+  # Désactiver la vérification automatique des mises à jour des boîtes. Si vous désactivez cela, alors
+  # les boîtes ne seront vérifiées pour les mises à jour que lorsque l'utilisateur exécute
+  # `vagrant box outdated`. Ceci n'est pas recommandé.
+  # config.vm.box_check_update = false
+
+  # Créez une cartographie de port transférée qui permet d'accéder à un port spécifique
+  # à l'intérieur de la machine à partir d'un port sur la machine hôte. Dans l'exemple ci-dessous,
+  # accéder à "localhost:8080" accédera au port 80 sur la machine invitée.
+  # NOTE: Ceci permettra l'accès public au port ouvert
+  # config.vm.network "forwarded_port", guest: 80, host: 8080
+
+  # Créez une cartographie de port transférée qui permet d'accéder à un port spécifique
+  # à l'intérieur de la machine à partir d'un port sur la machine hôte et n'autorisez l'accès
+  # que via 127.0.0.1 pour désactiver l'accès public
+  # config.vm.network "forwarded_port", guest: 80, host: 8080, host_ip: "127.0.0.1"
+
+  # Créez un réseau privé, qui permet un accès en lecture seule à la machine
+  # en utilisant une IP spécifique.
+  # config.vm.network "private_network", ip: "192.168.33.10"
+
+  # Créez un réseau public, qui correspond généralement à un réseau bridgé.
+  # Les réseaux bridgés font apparaître la machine comme un autre dispositif physique sur
+  # votre réseau.
+  # config.vm.network "public_network"
+
+  # Partagez un dossier supplémentaire avec la machine invitée. Le premier argument est
+  # le chemin d'accès sur l'hôte vers le dossier réel. Le deuxième argument est
+  # le chemin d'accès sur l'invité pour monter le dossier. Et le troisième argument facultatif est
+  # un ensemble d'options non requises.
+  # config.vm.synced_folder "../data", "/vagrant_data"
+
+  # Configuration spécifique au fournisseur afin que vous puissiez affiner divers
+  # fournisseurs de soutien pour Vagrant. Ceux-ci exposent des options spécifiques au fournisseur.
+  # Exemple pour VirtualBox:
+   #
+  # config.vm.provider "virtualbox" do |vb|
+  #   # Affiche l'interface graphique de VirtualBox lors du démarrage de la machine
+  #   vb.gui = true
+  #
+  #   # Personnalisez la quantité de mémoire sur la VM :
+  #   vb.memory = "1024"
+  # end
+  #
+  # Consultez la documentation pour le fournisseur que vous utilisez pour plus
+  # d'informations sur les options disponibles.
+
+  # Activez la fourniture avec un script shell. Des fournisseurs supplémentaires tels que
+  # Ansible, Chef, Docker, Puppet et Salt sont également disponibles. Veuillez consulter la
+  # documentation pour plus d'informations sur leur syntaxe et leur utilisation spécifiques.
+  # config.vm.provision "shell", inline: <<-SHELL
+  #   apt-get update
+  #   apt-get install -y apache2
+  # SHELL
+end

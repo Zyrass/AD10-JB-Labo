@@ -1,165 +1,64 @@
 # -*- mode: ruby -*-
 # vi: set ft=ruby :
 
-# -*- mode: ruby -*-
-# vi: set ft=ruby :
-
 Vagrant.configure("2") do |config|
 
-  # Mise à jour des packages sur toutes les machines
-  config.vm.provision "shell", inline: <<-SHELL
-    sudo apt-get update -y
-    sudo apt-get upgrade -y
-  SHELL
+	# VM 1 : Firewall
+	config.vm.define "firewall" do |firewall|
+		firewall.vm.box = "debian/bullseye64"
+		firewall.vm.network "public_network"
+		firewall.vm.provision "shell", path: "./firewall.sh"
+		firewall.vm.provider "virtualbox" do |virtualBox|
+			virtualBox.name = "Vagrant - Firewall"
+		end
+	end 
 
-  # ===================================================================================
-  # Configuration de la passerelle/firewall
-  # ===================================================================================
-  config.vm.define "Passerelle - Firewall" do |firewall|
-    firewall.vm.box = "bento/ubuntu-23.04"
-    firewall.vm.network "public_network", ip: "192.168.10.11"
-    # Every Vagrant development environment requires a box. You can search for
-    # boxes at https://vagrantcloud.com/search.
-
-    # Installation et configuration d'UFW (Firewall très simple d'utilisation)
-    firewall.vm.provision "shell", inline: <<-SHELL
-      # Installation du firewall UFW
-      sudo apt-get install ufw -y
-
-      # Activation d'UFW
-      sudo ufw --force enable
-
-      # Configuration des règles de pare-feu
-      # Limite l'accès en SSH au bastion avec le port 22
-      sudo ufw allow from any to 192.168.10.12 port 22
-
-      # Limite l'accès au port HTTP (80) spécifique pour le load balancer
-      sudo ufw allow from any to 192.168.10.13 port 80
-    SHELL
+  # VM 2 : Bastion
+  config.vm.define "bastion" do |bastion|
+		bastion.vm.box = "debian/bullseye64"
+    bastion.vm.network "private_network", ip: "192.168.56.10", netmask: "255.255.248.0"
+    bastion.vm.provision "shell", path: "./bastion.sh"
+    bastion.vm.provider "virtualbox" do |virtualBox|
+			virtualBox.name = "Vagrant - Bastion"
+		end
   end
 
+	# VM 3 : Load Balancer
+	config.vm.define "load_balancer" do |load_balancer|
+		load_balancer.vm.box = "debian/bullseye64"
+		load_balancer.vm.network "private_network", ip: "192.168.56.11", netmask: "255.255.248.0"
+		load_balancer.vm.provision "shell", path: "./load_balancer.sh"
+		load_balancer.vm.provider "virtualbox" do |virtualBox|
+			virtualBox.name = "Vagrant - Load Balancer"
+		end
+	end
 
-  # ===================================================================================
-  # Configuration du bastion
-  # ===================================================================================
-  config.vm.define "Bastion" do |bastion|
-    bastion.vm.box = "bento/ubuntu-23.04"
-    bastion.vm.network "public_network", ip: "192.168.10.12"
-    bastion.ssh.forward_agent = true
+	config.vm.provision "shell", inline: <<-SHELL
+		echo -e "\n ------- WORDPRESS N° 1"
+	SHELL
 
-    # Configuration des clés SSH pour le bastion
-    bastion.vm.provision "shell", inline: <<-SHELL
-      # Génération d'une paire de clés SSH pour le bastion
-      ssh-keygen -t rsa -b 4096 -N "" -f /home/vagrant/.ssh/id_rsa
+	# VM 4: WordPress
+	config.vm.define "wordpress - 1" do |wordpress_1|
+		wordpress_1.vm.box = "debian/bullseye64"
+		wordpress_1.vm.network "private_network", ip: "192.168.56.21", netmask: "255.255.248.0"
+		wordpress_1.vm.provision "shell", path: "wordpress.sh"
+		wordpress_1.vm.provider "virtualbox" do |virtualBox|
+			virtualBox.name = "Vagrant - WordPress n°1"
+		end
+	end
 
-      # Copie de la clé publique du bastion vers authorized_keys
-      cat /home/vagrant/.ssh/id_rsa.pub >> /home/vagrant/.ssh/authorized_keys
+	config.vm.provision "shell", inline: <<-SHELL
+		echo -e "\n ------- WORDPRESS N° 2"
+	SHELL
 
-      # Configuration des permissions pour l'utilisateur vagrant
-      chmod 700 /home/vagrant/.ssh
-      chmod 600 /home/vagrant/.ssh/id_rsa*
-      chmod 644 /home/vagrant/.ssh/authorized_keys
-      chown -R vagrant:vagrant /home/vagrant/.ssh
-
-      # Copie des clés publiques des autres machines vers authorized_keys
-      echo "Contenu de la clé publique de la machine serveur_web1" >> /home/vagrant/.ssh/authorized_keys
-      echo "Contenu de la clé publique de la machine serveur_web2" >> /home/vagrant/.ssh/authorized_keys
-      echo "Contenu de la clé publique de la machine base_de_donnees_master" >> /home/vagrant/.ssh/authorized_keys
-      echo "Contenu de la clé publique de la machine base_de_donnees_slave" >> /home/vagrant/.ssh/authorized_keys
-      echo "Contenu de la clé publique de la machine service_logs_monitoring" >> /home/vagrant/.ssh/authorized_keys
-    SHELL
-  end
-
-  # ===================================================================================
-  # Configuration du load balancer (HAProxy)
-  # ===================================================================================
-  config.vm.define "Load Balancer" do |lb|
-    lb.vm.box = "bento/ubuntu-23.04"
-    lb.vm.network "public_network", ip: "192.168.10.13"
-    lb.ssh.forward_agent = true
-
-    lb.vm.provision "shell", inline: <<-SHELL
-      # Installation de HAProxy
-      sudo apt-get install -y haproxy
-
-      # Configuration de HAProxy
-      echo "frontend http_front
-      bind *:80
-      default_backend http_back
-
-      backend http_back
-      balance roundrobin
-      server server1 192.168.10.21:80 check
-      server server2 192.168.10.22:80 check" | sudo tee /etc/haproxy/haproxy.cfg
-
-      # Redémarrage de HAProxy
-      sudo service haproxy restart
-    SHELL
-  end
-
-  # ===================================================================================
-  # Configuration du serveur web 1
-  # ===================================================================================
-  config.vm.define "Serveur Web 1" do |web1|
-    web1.vm.box = "bento/ubuntu-23.04"
-    web1.vm.network "public_network", ip: "192.168.10.21"
-    web1.ssh.forward_agent = true
-
-    web1.vm.provision "shell", inline: <<-SHELL
-      mkdir ./serveur_web1
-    SHELL
-
-    # Configuration de la synchronisation de dossier pour partager le contenu avec le serveur web
-    web1.vm.synced_folder "./serveur_web1", "/var/www/html"
-
-    web1.vm.provision "shell", inline: <<-SHELL
-      echo "<h1>Je suis le serveur 1</h1>" > /var/www/html/index.html
-    SHELL
-  end
-
-  # ===================================================================================
-  # Configuration du serveur web 2
-  # ===================================================================================
-  config.vm.define "Serveur Web 2" do |web2|
-    web2.vm.box = "bento/ubuntu-23.04"
-    web2.vm.network "public_network", ip: "192.168.10.22"
-    web2.ssh.forward_agent = true
-
-    web2.vm.provision "shell", inline: <<-SHELL
-      mkdir ./serveur_web2
-    SHELL
-
-    # Configuration de la synchronisation de dossier pour partager le contenu avec le serveur web
-    web2.vm.synced_folder "./serveur_web2", "/var/www/html"
-    
-    web2.vm.provision "shell", inline: <<-SHELL
-      echo "<h1>Je suis le serveur 2</h1>" > /var/www/html/index.html
-    SHELL
-  end
-
-  # ===================================================================================
-  # Configuration des bases de données
-  # ===================================================================================
-  config.vm.define "Base de données Master" do |db_master|
-    db_master.vm.box = "bento/ubuntu-23.04"
-    db_master.vm.network "private_network", ip: "192.168.20.21"
-    db_master.ssh.forward_agent = true
-  end
-
-  config.vm.define "Base de données Slave" do |db_slave|
-    db_slave.vm.box = "bento/ubuntu-23.04"
-    db_slave.vm.network "private_network", ip: "192.168.20.22"
-    db_slave.ssh.forward_agent = true
-  end
-
-  # ===================================================================================
-  # Configuration du service de logs (Graylog)
-  # Configuration du service de monitoring (Shinken)
-  # ===================================================================================
-  config.vm.define "Service Logs & Monitoring" do |logs_monitoring|
-    logs_monitoring.vm.box = "bento/ubuntu-23.04"
-    logs_monitoring.vm.network "private_network", ip: "192.168.20.11"
-    logs_monitoring.ssh.forward_agent = true
-  end
+	# VM 5: WordPress
+	config.vm.define "wordpress - 2" do |wordpress_2|
+		wordpress_2.vm.box = "debian/bullseye64"
+		wordpress_2.vm.network "private_network", ip: "192.168.56.22", netmask: "255.255.248.0"
+		wordpress_2.vm.provision "shell", path: "wordpress.sh"
+		wordpress_2.vm.provider "virtualbox" do |virtualBox|
+			virtualBox.name = "Vagrant - WordPress n°2"
+		end
+	end
 
 end

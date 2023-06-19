@@ -1,58 +1,159 @@
+--------------------------------------------------------------------------------------
 Système
+--------------------------------------------------------------------------------------
+
 
 • Quel est le chemin du fichier permettant de connaître la version de DEBIAN ?
+
+/etc/debian_version
+
 • Quelle est la commande permettant de connaître la date et l’heure définie sur le système ?
+
+date
+
 • Quelle est la timezone du système ?
+
+Europe/Paris (CEST, +0200)
+Bonus perso: 
+    timedatectl | grep "Time" | cut -d ":" -f 2 
+
 • Quelle est la commande permettant de modifier la timezone du système ?
-• Quelle est la commande permettant de créer un fichier file.txt et son contenu « test » en une seule
-ligne ?
+
+sudo timedatectl set-timezone <time-zone>
+En france, il est question d'utiliser celle-ci:
+sudo timedatectl set-timezone Europe/Paris
+
+• Quelle est la commande permettant de créer un fichier file.txt et son contenu « test » en une seule ligne ?
+
+echo "test" > file.txt
+Et pour écrire à la suite sans forcément écraser le contenu précédent.
+echo "test" >> file.txt
+
 • Quelle est la commande permettant de connaître le nom du système (nom d’hôte) ?
+    
+cat /etc/hostname
+
 • Quelle est la commande permettant de modifier le nom d’hôte du système ?
+
+hostnamectl set-hostname <nom d'hôte>
+
 • Quelle est la commande permettant de redémarrer système ?
+
+sudo reboot
+
 • Quelle est la commande permettant de savoir depuis combien de temps le système tourne ?
+
+uptime
+
 • Quelle est la commande permettant de connaître l’espace disque disponible sur le système ?
+
+df -kh / | awk '{print $4}' | sed -n "2p"
+18G
+
 • Quelle est la commande permettant de connaître l’espace disque occupé par le répertoire /etc ?
+
+df -h /etc | awk '{print $3}' | sed -n "2p"
+833M
+
 • Quelle est la commande permettant de savoir si le service sshd est démarré ?
+
+sudo service sshd status
+
 • Quelle est la commande permettant de connaître le PID du service sshd ?
+
+ps -ef | grep sshd | sed -n "1p" | awk '{print $2}'
+544
+
 • Quelle est la commande permettant de tuer le processus sshd à l’aide de son PID ?
+
+kill 544
+
 • Quelle est la commande permettant de connaître la liste des processus en cours ?
+
+ps
+
 • Quelle est la commande permettant de connaître le nom de l’utilisateur actuellement connecté à la
 console ?
-• Quelle est la commande permettant de connaître le nom de tous les utilisateurs actuellement
-connectés au système ?
+
+whoami
+
+• Quelle est la commande permettant de connaître le nom de tous les utilisateurs actuellement connectés au système ?
+
+sudo cat /etc/passwd | cut -d: -f1
+
 • Quelle est la commande permettant de lancer une commande avec les droits root sans être root ?
-• Quelle est la commande permettant d’éditer le fichier de définition des commandes exécutées
-périodiquement ?
-• Quelle est la commande permettant de vider l’historique de la ligne de commande de l’utilisateur en
-cours ?
 
+sudo <commande>
 
+• Quelle est la commande permettant d’éditer le fichier de définition des commandes exécutées périodiquement ?
+
+sudo crontab -e
+
+• Quelle est la commande permettant de vider l’historique de la ligne de commande de l’utilisateur en cours ?
+
+history -c
+
+--------------------------------------------------------------------------------------
 Réseau
+--------------------------------------------------------------------------------------
 
 • Quelle est la commande permettant de connaître le nom et l’adresse IP de l’interface ethernet ?
+
+ip addr show eth0
+Raccourci pour le même résultat
+ip a s eth0
+
 • Quelle est la commande permettant de connaître l’adresse IP de la passerelle (gateway) ?
+
+ip route show | grep default | cut -d " " -f 3
+
 • Quel est le chemin du fichier dans lequel sont définis les DNS ?
-• Quelle est la commande permettant de connaître l’adresse IP du DNS racine pour le domaine www.it-
-akademy. fr ?
+
+/etc/resolv.conf
+
+• Quelle est la commande permettant de connaître l’adresse IP du DNS racine pour le domaine www.it-akademy. fr ?
+
+dig www.it-akademy.fr MS +short
+
 • Quel est le nom du paquet que vous avez du installer pour répondre à la question précédente ?
+
+dnsutils
+sudo apt install dnsutils
+
 • Quelle est la commande permettant de vérifier que la passerelle est accessible depuis la Debian ?
-• Quelle est la commande permettant de connaître les adresses des équipements réseau entre la Debian
-et le serveur hébergeant it-akademy.fr ?
-• Quelle est la commande permettant de connaître le nom d’hôte de la machine hébergeant it-akademy.
-fr ?
+
+ping 172.66.43.64
+
+• Quelle est la commande permettant de connaître les adresses des équipements réseau entre la Debian et le serveur hébergeant it-akademy.fr ?
+
+traceroute www.it-akademy.fr
+
+• Quelle est la commande permettant de connaître le nom d’hôte de la machine hébergeant it-akademy.fr ?
+
+nslookup it-akademy.fr
+
 • Quel est le chemin du fichier local contenant des correspondances adresses IP / Nom de domaine ?
-• Quelle est la commande permettant de faire pointer le domaine labo.it-akademy.fr vers l’adresse
+
+/etc/hosts
+
+• Quelle est la commande permettant de faire pointer le domaine labo.it-akademy.fr vers l’adresse 127.0.0.1 ?
+
 127.0.0.1 ?
+sudo -i       (pour passé en root)
+echo "127.0.0.1 labo.it-akademy.fr" >> /etc/hosts
 
-
+--------------------------------------------------------------------------------------
 Scripting
+--------------------------------------------------------------------------------------
 
-• Créer un script permettant, une fois exécuté, d’afficher la liste des fichiers triés par taille du répertoire /
-var/log.
-• Créer un script permettant, une fois exécuté, d’afficher la liste des fichiers triés par taille du répertoire
-passé en argument.
-• Créer un script permettant, une fois exécuté, de mettre à jour les dépôts de paquets Debian, puis de
-mettre à jour les paquets installés sur le système et de journaliser le tout dans le fichier /var/log/apt/
-updated.log.
+• Créer un script permettant, une fois exécuté, d’afficher la liste des fichiers triés par taille du répertoire /var/log.
 
+scripts/sort_logs_by_size.sh
 
+• Créer un script permettant, une fois exécuté, d’afficher la liste des fichiers triés par taille du répertoire passé en argument.
+
+scripts/sort_by_size_by_folder.sh
+
+• Créer un script permettant, une fois exécuté, de mettre à jour les dépôts de paquets Debian, puis de mettre à jour les paquets installés sur le système et de journaliser le tout dans le fichier /var/log/apt/updated.log.
+
+scripts/debian_update
